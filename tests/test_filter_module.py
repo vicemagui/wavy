@@ -118,6 +118,56 @@ def test_filter_landMask(test_data):
     assert type(sco.vars == 'xarray.core.dataset.Dataset')
     assert not 'error' in vars(sco).keys()
 
+def test_filter_landMask_Gshhg(test_data):
+    sd = "2022-2-1 12"
+    ed = "2022-2-1 12"
+    name = 's3a'
+    varalias = 'Hs'
+    twin = 30
+    nID = 'cmems_L3_NRT'
+    # init satellite_object
+    sco = sc(sd=sd, ed=ed, nID=nID, name=name,
+             varalias=varalias,
+             twin=twin)
+    # read data
+    sco = sco.populate(path=str(test_data/"L3/s3a"))
+    sco = sco.filter_landMask(provider='Gshhg')
+    assert sco.__class__.__name__ == 'satellite_class'
+    # compare number of available variables
+    vlst = list(vars(sco).keys())
+    assert len(vlst) == 20
+    # compare number of available functions
+    dlst = dir(sco)
+    flst = [n for n in dlst if n not in vlst if '__' not in n]
+    assert len(flst) >= 46
+    assert type(sco.vars == 'xarray.core.dataset.Dataset')
+    assert not 'error' in vars(sco).keys()
+
+def test_filter_landMask_Osm(test_data):
+    sd = "2022-2-1 12"
+    ed = "2022-2-1 12"
+    name = 's3a'
+    varalias = 'Hs'
+    twin = 30
+    nID = 'cmems_L3_NRT'
+    # init satellite_object
+    sco = sc(sd=sd, ed=ed, nID=nID, name=name,
+             varalias=varalias,
+             twin=twin)
+    # read data
+    sco = sco.populate(path=str(test_data/"L3/s3a"))
+    sco = sco.filter_landMask(provider='Osm')
+    assert sco.__class__.__name__ == 'satellite_class'
+    # compare number of available variables
+    vlst = list(vars(sco).keys())
+    assert len(vlst) == 20
+    # compare number of available functions
+    dlst = dir(sco)
+    flst = [n for n in dlst if n not in vlst if '__' not in n]
+    assert len(flst) >= 46
+    assert type(sco.vars == 'xarray.core.dataset.Dataset')
+    assert not 'error' in vars(sco).keys()
+
 def test_filter_distance_to_coast(test_data):
     sd = "2022-2-1 12"
     ed = "2022-2-1 12"

@@ -113,13 +113,23 @@ class filter_class:
         discards all values closer to shoreline than threshold
         """
         print("Apply distance_to_coast_mask")
-        new = deepcopy(self)
-        longitudes = np.array(new.vars['lons'])
-        latitudes = np.array(new.vars['lats'])
-        w = Shapes.wkb(LandmaskProvider.Gshhg)
+
+        provider = kwargs.get('provider', 'Gshhg')
+
+        if (provider is 'None' or provider == 'Gshhg'):
+            provider = LandmaskProvider.Gshhg
+        elif (provider == 'Osm'):
+            provider = LandmaskProvider.Osm
+
+        w = Shapes.wkb(provider)
         polys = wkb.loads(w)
         mapped = mapping(polys)
         c = mapped['coordinates']
+
+        new = deepcopy(self)
+        longitudes = np.array(new.vars['lons'])
+        latitudes = np.array(new.vars['lats'])
+
         cA = np.vstack([np.flip(x[0][:]) for x in c])
         points_sdef = pr.geometry.SwathDefinition(longitudes, latitudes)
         coast_sdef = pr.geometry.SwathDefinition(cA[:, 1], cA[:, 0])
@@ -139,10 +149,6 @@ class filter_class:
               (len(distance_array)-len(mask)))
         print(" Number of remaining values:", len(new.vars['time']))
         return new
-
-    #def filter_blockMean(self, **kwargs):
-    #    print('Apply blockMean')
-    #    return self
 
     def filter_lanczos(self, **kwargs):
         logger = logging.getLogger(__name__)
@@ -746,7 +752,7 @@ class filter_class:
                             np.transpose(
                                 np.array([P_perp_minus, P_perp_plus]))[1]
                     # check if footprints intersect with land
-                    sea_mask = apply_land_mask(lons_perp, lats_perp)
+                    sea_mask = apply_land_mask(lons_perp, lats_perp, **kwargs)
                     if False in sea_mask:
                         logger.info(
                             'Polution by land is detected for index ' + str(i))
@@ -839,7 +845,7 @@ def start_stop(a, trigger_val):
     # Get the start and end indices with slicing along the shifting ones
     return zip(idx[::2], idx[1::2]-1)
 
-def apply_land_mask(longitudes: np.ndarray, latitudes: np.ndarray):
+def apply_land_mask(longitudes: np.ndarray, latitudes: np.ndarray, **kwargs):
     """ Mask out parts covering land
 
     Args:
@@ -851,8 +857,16 @@ def apply_land_mask(longitudes: np.ndarray, latitudes: np.ndarray):
     """
     global ROAR
 
+    provider = kwargs.get('provider', 'Gshhg')
+
+    if (provider is 'None' or provider == 'Gshhg'):
+        provider = LandmaskProvider.Gshhg
+    elif (provider == 'Osm'):
+        provider = LandmaskProvider.Osm
+
     if ROAR is None:
-        ROAR = roaring_landmask.RoaringLandmask.new()
+        ROAR = roaring_landmask.RoaringLandmask.new_with_provider(provider)
+        #ROAR = roaring_landmask.RoaringLandmask.new()
 
     # ensure float64 type on input to ROAR
     longitudes = longitudes.astype(np.float64)
