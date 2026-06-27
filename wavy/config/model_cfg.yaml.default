@@ -49,6 +49,7 @@ ARCMFC3:
     coords:
     wavy_input:
         src_tmplt: "https://thredds.met.no/thredds/dodsC/cmems/mywavewam3km_files/%Y/%m/"
+        #src_tmplt: "/lustre/storeA/project/copernicus/sea/mywavewam3_preop/arctic/%Y/%m/"
         # Best guess: 2019071500_MyWaveWam3_b20190715T06.nc
         # - This is actually 2019071500_*_b20190715T00* but due
         #   to delay the bulletin date/time is adjusted
@@ -59,12 +60,12 @@ ARCMFC3:
     collector:
     misc:
         xtra_h: [0,6] # h bias adjustment according to position in filename
-        lt_switch_f: [1,0] # should lead time adjust filedate [False/True]
+        lt_switch_f: [1, 0] # should lead time adjust filedate [False/True]
         lt_switch_p: 1 # should lead time adjust pathdate [False/True]
         nr_filedates: 2
         # defining format which substitutes filedate in file_template
         filedate_formats: ['%Y%m%d%H','%Y%m%dT%H']
-        init_times: [0,12]
+        init_times: [0, 12]
         init_step: 12
         leadtimes: [0,12,36,60,84,108,132,156,180,204,228]
         grid_date: 2020-02-01 00:00:00
